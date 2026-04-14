@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Solar-Inselanlagen Rentabilitätsrechner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(0deg, #0a0041, #6b9bbd);
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background: linear-gradient(180deg, #e2ffc0, rgb(151, 177, 141));
+            padding: 50px;
+            border-radius: 80px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        p {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        fieldset {
+            border: 2px solid #4caf50;
+            border-radius: 20px;
+            margin: 20px 0;
+            padding: 15px;
+        }
+        legend {
+            font-weight: bold;
+            color: #2e7d32;
+            padding: 0 10px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 50px;
+            box-sizing: border-box;
+            font-size: 16px;
+            text-align: center;
+        }
+        input::placeholder {
+            color: #999;
+            text-align: center;
+        }
+        input:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background 0.3s;
+            text-align: center;
+            box-shadow:  4px 8px 10px rgba(0,0,0,0.6);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #388e3c, #4caf50);
+        }
+        #ergebnisse {
+            margin-top: 30px;
+        }
+         #ergebnissen {
+             text-shadow: 0px 5px 5px rgba(0,0,0,0.6);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            margin-top: 15px;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.6);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        th {
+            background: #f1f8e9;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 20px; }
+            input { font-size: 14px; }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Solar-Inselanlagen Rentabilitätsrechner</h1>
+        <p>Basierend auf DE-Daten 2026: Passe Werte an (z. B. Rheinland-Pfalz ~950-1050 kWh/kWp).</p>
+        
+        <fieldset>
+            <legend>PV-Anlage</legend>
+            <label>PV-Leistung (kWp): <input type="number" id="leistung" value="5" step="0.1" min="0"></label>
+            <label>Kosten PV (€/kWp): <input type="number" id="kosten_pv" value="1500" step="100" min="0"></label>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Speicher</legend>
+            <label>Speicher (kWh): <input type="number" id="speicher" value="10" step="1" min="0"></label>
+            <label>Preis Speicher (€): <input type="number" id="kosten_speicher" value="500" step="50" min="0"></label>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Verbrauch & Ertrag</legend>
+            <label>Jahresverbrauch (kWh): <input type="number" id="verbrauch" value="4000" step="100" min="0"></label>
+            <label>Ertrag pro kWp (kWh/Jahr): <input type="number" id="ertrag_kwp" value="1000" step="50" min="0"></label>
+            <label>Speichereffizienz (%): <input type="number" id="effizienz" value="90" step="1" max="100" min="0"></label>
+            <label>Autarkiegrad (%): <input type="number" id="autarkie" value="80" step="1" max="100" min="0"></label>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Finanziell</legend>
+            <label>Strompreis (ct/kWh): <input type="number" id="strompreis" value="40" step="1" min="0"></label>
+            <label>Kreditzinsen (%): <input type="number" id="diskont" value="4" step="0.1" min="0"></label>
+            <label>Inflation (%): <input type="number" id="inflation" value="2" step="0.1" min="0"></label>
+            <label>Wartung/Jahr (€): <input type="number" id="wartung" value="200" step="50" min="0"></label>
+            <label>Nutzungsdauer (Jahre): <input type="number" id="jahre" value="25" step="1" min="1"></label>
+        </fieldset>
+        
+        <button onclick="berechne()">Berechnen</button>
+        
+        <div id="ergebnisse"></div>
+    </div>
+
+    <script>
+        function berechne() {
+            const leistung = parseFloat(document.getElementById('leistung').value);
+            const kostenPV = parseFloat(document.getElementById('kosten_pv').value);
+            const speicher = parseFloat(document.getElementById('speicher').value);
+            const kostenSpeicher = parseFloat(document.getElementById('kosten_speicher').value);
+            let speicherkosten = kostenSpeicher / speicher;
+            const verbrauch = parseFloat(document.getElementById('verbrauch').value);
+            const ertragKwp = parseFloat(document.getElementById('ertrag_kwp').value);
+            const effizienz = parseFloat(document.getElementById('effizienz').value) / 100;
+            const autarkie = parseFloat(document.getElementById('autarkie').value) / 100;
+            const strompreis = parseFloat(document.getElementById('strompreis').value) / 100;
+            const diskont = parseFloat(document.getElementById('diskont').value) / 100;
+            const inflation = parseFloat(document.getElementById('inflation').value) / 100;
+            const wartung = parseFloat(document.getElementById('wartung').value);
+            const jahre = parseInt(document.getElementById('jahre').value);
+
+            const kostenGesamt = -(leistung * kostenPV + speicher * speicherkosten);
+            const produktion = leistung * ertragKwp * effizienz;
+            const ersparnisJ1 = Math.min(autarkie * verbrauch * strompreis, produktion * strompreis);
+            let cashflows = [kostenGesamt];
+            let cumCF = 0;
+            let amortJahr = '-';
+            for (let y = 1; y <= jahre; y++) {
+                const ersparnis = ersparnisJ1 * Math.pow(1 + inflation, y - 1);
+                const netto = ersparnis - wartung;
+                cashflows.push(netto);
+                cumCF += netto;
+                if (cumCF >= -kostenGesamt && amortJahr === '-') {
+                    amortJahr = y;
+                }
+            }
+
+            const npv = npvFun(diskont, cashflows);
+            const irr = irrFun(cashflows);
+
+            let html = `
+                <h2 id="ergebnissen">Ergebnisse</h2>
+                <table>
+                    <tr><th>Parameter</th><th>Wert</th></tr>
+                    <tr><td>Gesamtinvestition</td><td>${kostenGesamt.toLocaleString('de-DE')} €</td></tr>
+                    <tr><td>Speicherkosten (€/kWh)</td><td>${speicherkosten.toLocaleString('de-DE', {minimumFractionDigits: 2})} €/kWh</td></tr>
+                    <tr><td>Jahresproduktion (eff.)</td><td>${produktion.toLocaleString('de-DE')} kWh</td></tr>
+                    <tr><td>Maximale Ersparnis Jahr 1</td><td>${ersparnisJ1.toLocaleString('de-DE')} €</td></tr>
+                    <tr><td>NPV (Net Present Value)</td><td>${npv.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td></tr>
+                    <tr><td>IRR (Interne Rendite)</td><td>${(irr*100).toLocaleString('de-DE', {minimumFractionDigits: 2})} %</td></tr>
+                    <tr><td>Amortisation</td><td>${amortJahr} Jahre</td></tr>
+                </table>
+                <p><strong>Hinweis:</strong> Positive NPV/IR > Diskontsatz = rentabel. Passe für deinen Standort (z. B. Speicheroptimierung für höhere Autarkie).</p>
+            `;
+            document.getElementById('ergebnisse').innerHTML = html;
+        }
+
+        function npvFun(rate, cfs) {
+            let total = 0;
+            for (let i = 0; i < cfs.length; i++) {
+                total += cfs[i] / Math.pow(1 + rate, i);
+            }
+            return total;
+        }
+
+        function irrFun(cfs) {
+            let rate = 0.1;
+            const maxIter = 1000;
+            const epsilon = 0.0001;
+            for (let iter = 0; iter < maxIter; iter++) {
+                let npvVal = npvFun(rate, cfs);
+                if (Math.abs(npvVal) < epsilon) return rate;
+                let deriv = 0;
+                for (let i = 0; i < cfs.length; i++) {
+                    deriv += -i * cfs[i] / Math.pow(1 + rate, i + 1);
+                }
+                if (Math.abs(deriv) < epsilon) break;
+                rate -= npvVal / deriv;
+                if (rate < -0.99 || rate > 10) break;
+            }
+            return rate;
+        }
+
+        // Initiale Berechnung
+        window.onload = berechne;
+    </script>
+</body>
+</html>
